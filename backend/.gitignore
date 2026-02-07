@@ -1,0 +1,12 @@
+.env
+/services/validated/
+/services/invalid/
+/services/risky/
+/services/combined/
+/services/valid/
+/uploads/
+/services/deleted_emails/
+/deleted_emails/
+deleted_emails
+step2.yaml
+/data
