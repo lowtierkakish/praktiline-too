@@ -84,15 +84,8 @@ export function RegisterForm({
           href="/"
           className="flex items-center gap-3 font-medium cursor-pointer hover:opacity-80 transition-opacity mb-2"
         >
-          <Image
-            src="/favicon-32x32.png"
-            alt="Martin's Project Logo"
-            width={32}
-            height={32}
-            priority
-          />
           <span className="text-2xl font-bold text-[#E60023]">
-            Martin's Project
+            Martin's Praktiline Töö
           </span>
         </a>
         <p className="text-gray-600 text-xs max-w-sm">
