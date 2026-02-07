@@ -1,6 +1,6 @@
-# Martin's Project  Backend
+# Praktiline-too  Backend
 
-Go-based REST API for Martin's Project application.
+Go-based REST API for praktiline-too application.
 
 ## Quick Start
 
