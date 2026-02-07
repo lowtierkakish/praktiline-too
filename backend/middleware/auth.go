@@ -17,7 +17,7 @@ type ctxKeyUser int
 
 const ContextUserIDKey ctxKeyUser = 0
 
-const cookieSessionKey = "Martin's Project__session"
+const cookieSessionKey = "praktiline_too_session"
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
