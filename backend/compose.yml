@@ -6,7 +6,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: Martin's Project_
+      POSTGRES_DB: postgres
 
   redis:
     image: valkey/valkey:8-alpine
