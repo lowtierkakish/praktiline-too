@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+type Homework struct {
+	ID          int64     `json:"id"`
+	Subject     string    `json:"subject"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	Day         int16     `json:"day"`
+	Type        string    `json:"type"`
+}
+
 type Session struct {
 	Sid       string    `json:"sid"`
 	UserID    int64     `json:"user_id"`

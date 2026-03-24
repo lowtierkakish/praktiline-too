@@ -10,6 +10,47 @@ import (
 	"time"
 )
 
+const createHomework = `-- name: CreateHomework :one
+insert into homework (subject, description, day, type)
+values ($1, $2, $3, $4)
+returning id, subject, description, day, type, created_at
+`
+
+type CreateHomeworkParams struct {
+	Subject     string `json:"subject"`
+	Description string `json:"description"`
+	Day         int16  `json:"day"`
+	Type        string `json:"type"`
+}
+
+type CreateHomeworkRow struct {
+	ID          int64     `json:"id"`
+	Subject     string    `json:"subject"`
+	Description string    `json:"description"`
+	Day         int16     `json:"day"`
+	Type        string    `json:"type"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+func (q *Queries) CreateHomework(ctx context.Context, arg CreateHomeworkParams) (CreateHomeworkRow, error) {
+	row := q.db.QueryRow(ctx, createHomework,
+		arg.Subject,
+		arg.Description,
+		arg.Day,
+		arg.Type,
+	)
+	var i CreateHomeworkRow
+	err := row.Scan(
+		&i.ID,
+		&i.Subject,
+		&i.Description,
+		&i.Day,
+		&i.Type,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createSession = `-- name: CreateSession :exec
 insert into
     sessions (
@@ -73,6 +114,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, 
 	return id, err
 }
 
+const deleteHomework = `-- name: DeleteHomework :exec
+delete from homework where id = $1
+`
+
+func (q *Queries) DeleteHomework(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteHomework, id)
+	return err
+}
+
 const destroyAllSessions = `-- name: DestroyAllSessions :many
 delete from sessions where user_id = $1 returning sid
 `
@@ -104,6 +154,48 @@ delete from sessions where sid = $1
 func (q *Queries) DestroySession(ctx context.Context, sid string) error {
 	_, err := q.db.Exec(ctx, destroySession, sid)
 	return err
+}
+
+const getAllHomework = `-- name: GetAllHomework :many
+select id, subject, description, day, type, created_at
+from homework
+order by day asc, created_at asc
+`
+
+type GetAllHomeworkRow struct {
+	ID          int64     `json:"id"`
+	Subject     string    `json:"subject"`
+	Description string    `json:"description"`
+	Day         int16     `json:"day"`
+	Type        string    `json:"type"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+func (q *Queries) GetAllHomework(ctx context.Context) ([]GetAllHomeworkRow, error) {
+	rows, err := q.db.Query(ctx, getAllHomework)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllHomeworkRow
+	for rows.Next() {
+		var i GetAllHomeworkRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Subject,
+			&i.Description,
+			&i.Day,
+			&i.Type,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one

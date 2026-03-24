@@ -41,3 +41,16 @@ select email from users where id = $1;
 
 -- name: GetUserByEmail :one
 select id, password from users where email = $1;
+
+-- name: CreateHomework :one
+insert into homework (subject, description, day, type)
+values ($1, $2, $3, $4)
+returning id, subject, description, day, type, created_at;
+
+-- name: GetAllHomework :many
+select id, subject, description, day, type, created_at
+from homework
+order by day asc, created_at asc;
+
+-- name: DeleteHomework :exec
+delete from homework where id = $1;

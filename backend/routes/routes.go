@@ -42,6 +42,12 @@ func SetupRoutes() *chi.Mux {
 				r.Get("/", controllers.GetMe)
 				r.Post("/logout", controllers.Logout)
 			})
+
+			r.Route("/homework", func(r chi.Router) {
+				r.Get("/", controllers.GetHomework)
+				r.Post("/", controllers.CreateHomework)
+				r.Delete("/{id}", controllers.DeleteHomework)
+			})
 		})
 	})
 

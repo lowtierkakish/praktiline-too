@@ -18,7 +18,7 @@ export default function Header() {
             onClick={() => router.push("/home")}
             aria-label="Martin's Project"
           >
-            Martin's Project
+            Praktiline Töö
           </button>
         </div>
         <div>
@@ -120,16 +120,9 @@ export default function Header() {
               </AnimatePresence>
             </div>
 
-            <button
-              className="size-9.5 inline-flex justify-center items-center rounded-full cursor-pointer"
-              onClick={() => router.push("/profile")}
-            >
-              <img
-                className="shrink-0 size-9.5 rounded-full"
-                src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80"
-                alt="Avatar"
-              />
-            </button>
+            <div className="size-9 inline-flex justify-center items-center rounded-full bg-[#1e3a5f] text-white text-sm font-semibold select-none">
+              K
+            </div>
           </div>
         </div>
       </nav>

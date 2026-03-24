@@ -1,5 +1,3 @@
-import { ca } from "zod/v4/locales";
-
 export const authKeys = {
     all: ["auth"] as const,
     currentUser: () => [...authKeys.all, "currentUser"] as const,
@@ -12,4 +10,9 @@ export const userKeys = {
   changePassword: () => ["changePassword"] as const,
   changeHelperVisibility: () => ["changeHelperVisibility"] as const,
   deleteAccount: () => ["deleteAccount"] as const,
+};
+
+export const homeworkKeys = {
+    all: ["homework"] as const,
+    list: () => [...homeworkKeys.all, "list"] as const,
 };
