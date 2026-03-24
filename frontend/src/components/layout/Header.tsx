@@ -79,42 +79,11 @@ export default function Header() {
                             </svg>
                             <div className="min-w-0">
                               <p className="font-medium text-gray-800 text-sm sm:text-base">
-                                Home Feed
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1 hidden sm:block">
-                                Discover new pins and ideas
+                                Avaleht
                               </p>
                             </div>
                           </a>
 
-                          <a
-                            href="/profile"
-                            className="p-2 sm:p-3 flex items-start gap-3 sm:gap-4 text-sm text-gray-800 hover:bg-gray-100 rounded-lg cursor-pointer"
-                          >
-                            <svg
-                              className="size-4 mt-1 flex-shrink-0"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                              <circle cx="12" cy="7" r="4" />
-                            </svg>
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-800 text-sm sm:text-base">
-                                Profile
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1 hidden sm:block">
-                                View and edit your profile
-                              </p>
-                            </div>
-                          </a>
                           <a href="/auth/sign-in">
                             <button
                               className="p-2 sm:p-3 flex items-start gap-3 sm:gap-4 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer w-full text-left"
@@ -138,10 +107,7 @@ export default function Header() {
                               </svg>
                               <div className="min-w-0">
                                 <p className="font-medium text-gray-800 text-sm sm:text-base">
-                                  Sign out
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1 hidden sm:block">
-                                  Sign out of your account
+                                  Logi välja
                                 </p>
                               </div>
                             </button>
