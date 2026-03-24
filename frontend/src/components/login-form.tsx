@@ -56,7 +56,7 @@ export function LoginForm({
       {...props}
     >
       <div className="flex flex-col items-center gap-2 text-center">
-        <span className="text-2xl font-bold text-[#E60023]">
+        <span className="text-2xl font-bold text-[#1e3a5f]">
           Praktiline Töö
         </span>
       </div>
@@ -74,21 +74,21 @@ export function LoginForm({
             onChange={(e) => setPassword(e.target.value)}
             className={clsx(
               "h-11 px-3 text-sm rounded-md border transition-colors duration-200",
-              "border-gray-200 hover:border-gray-300 focus:border-[#E60023] focus:ring-0 focus:outline-none",
+              "border-gray-200 hover:border-gray-300 focus:border-[#1e3a5f] focus:ring-0 focus:outline-none",
               "bg-white",
-              { "border-[#E60023] focus:border-[#E60023]": error },
+              { "border-[#1e3a5f] focus:border-[#1e3a5f]": error },
             )}
           />
         </div>
         {error && (
-          <div className="flex items-center gap-2 rounded-md bg-red-50 border border-red-200 p-3">
-            <AlertCircle className="text-[#E60023] flex-shrink-0" size={16} />
-            <p className="text-xs font-medium text-[#E60023]">{error}</p>
+          <div className="flex items-center gap-2 rounded-md bg-blue-50 border border-blue-200 p-3">
+            <AlertCircle className="text-[#1e3a5f] flex-shrink-0" size={16} />
+            <p className="text-xs font-medium text-[#1e3a5f]">{error}</p>
           </div>
         )}
         <Button
           type="submit"
-          className="w-full h-11 bg-[#E60023] hover:bg-[#d50520] text-white font-medium text-sm rounded-md transition-colors duration-200"
+          className="w-full h-11 bg-[#1e3a5f] hover:bg-[#162d4a] text-white font-medium text-sm rounded-md transition-colors duration-200 border-[#1e3a5f]"
           disabled={isPending}
         >
           {isPending ? (
