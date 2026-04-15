@@ -11,7 +11,7 @@ import { AlertCircle } from "lucide-react";
 import clsx from "clsx";
 import { isAxiosError } from "axios";
 
-const CLASS_EMAIL = "martin.vilnevtsits@tlvl.ee";
+const CLASS_EMAIL = "vilnevtsits.martin@tlvl.ee";
 
 export function LoginForm({
   className,

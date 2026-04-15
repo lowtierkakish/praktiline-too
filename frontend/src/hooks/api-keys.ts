@@ -16,3 +16,8 @@ export const homeworkKeys = {
     all: ["homework"] as const,
     list: () => [...homeworkKeys.all, "list"] as const,
 };
+
+export const scheduleKeys = {
+    all: ["schedule"] as const,
+    list: () => [...scheduleKeys.all, "list"] as const,
+};

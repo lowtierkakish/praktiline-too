@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Plus, X } from "lucide-react";
 import { useGetHomework, useCreateHomework, useDeleteHomework } from "@/hooks/homework";
+import { useGetSchedule, useCreateSchedule, useDeleteSchedule } from "@/hooks/schedule";
 
 const DAYS = [
   { id: 1, name: "Esmaspäev" },
@@ -11,6 +12,20 @@ const DAYS = [
   { id: 4, name: "Neljapäev" },
   { id: 5, name: "Reede" },
 ];
+
+const SCHEDULE_DAYS = [
+  { id: 1, name: "Esmaspäev" },
+  { id: 2, name: "Teisipäev" },
+  { id: 3, name: "Kolmapäev" },
+  { id: 4, name: "Neljapäev" },
+];
+
+const SLOT_TIMES: Record<number, string[]> = {
+  1: ["13:30–14:45", "14:55–16:10", "16:20–17:35", "17:45–19:00"],
+  2: ["14:00–15:15", "15:25–16:40", "16:50–18:05", "18:15–19:30"],
+  3: ["13:30–14:45", "14:55–16:10", "16:20–17:35", "17:45–19:00"],
+  4: ["13:30–14:45", "14:55–16:10", "16:20–17:35", "17:45–19:00"],
+};
 
 const SUBJECTS = [
   "Inimeseõpetus", "Muusika", "Bioloogia", "Füüsika",
@@ -50,6 +65,28 @@ export default function Page() {
   const homework = homeworkData ?? [];
   const { mutate: createHomework, isPending: isCreating } = useCreateHomework();
   const { mutate: deleteHomework } = useDeleteHomework();
+
+  // Schedule state
+  const [addingSlot, setAddingSlot] = useState<{ day: number; slot: number } | null>(null);
+  const [schedSubject, setSchedSubject] = useState("");
+
+  const { data: scheduleData, isLoading: isScheduleLoading } = useGetSchedule();
+  const schedule = scheduleData ?? [];
+  const { mutate: createSchedule, isPending: isScheduleCreating } = useCreateSchedule();
+  const { mutate: deleteSchedule } = useDeleteSchedule();
+
+  function scheduleEntry(day: number, slot: number) {
+    return schedule.find((e) => e.day === day && e.slot === slot);
+  }
+
+  function handleScheduleSubmit(e: React.FormEvent, day: number, slot: number) {
+    e.preventDefault();
+    if (!schedSubject) return;
+    createSchedule(
+      { day, slot, subject: schedSubject },
+      { onSuccess: () => { setAddingSlot(null); setSchedSubject(""); } }
+    );
+  }
 
   function openForm(dayId: number) {
     setAddingForDay(dayId);
@@ -226,8 +263,87 @@ export default function Page() {
 
       {/* Tunniplaan */}
       {activeTab === "Tunniplaan" && (
-        <div className="text-center py-16 text-gray-400 text-sm">
-          Tunniplaan on tulemas peagi.
+        <div className="overflow-x-auto pb-4">
+          {isScheduleLoading ? (
+            <p className="text-sm text-gray-400 text-center py-12">Laadimine...</p>
+          ) : (
+            <div className="flex gap-3 justify-center">
+              {SCHEDULE_DAYS.map((day) => (
+                <div
+                  key={day.id}
+                  className="w-52 flex flex-col bg-gray-50 rounded-xl border border-gray-200 p-3"
+                >
+                  <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">
+                    {day.name}
+                  </h2>
+
+                  <div className="flex flex-col gap-2">
+                    {[1, 2, 3, 4].map((slot) => {
+                      const entry = scheduleEntry(day.id, slot);
+                      const time = SLOT_TIMES[day.id][slot - 1];
+                      const isAdding = addingSlot?.day === day.id && addingSlot?.slot === slot;
+
+                      return (
+                        <div key={slot} className="rounded-lg border border-gray-200 bg-white p-2">
+                          <p className="text-xs text-gray-400 mb-1">{time}</p>
+
+                          {entry ? (
+                            <div className="flex items-center justify-between gap-1">
+                              <p className="text-xs font-semibold text-[#1e3a5f] truncate">
+                                {entry.subject}
+                              </p>
+                              <button
+                                onClick={() => deleteSchedule(entry.id)}
+                                className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          ) : isAdding ? (
+                            <form onSubmit={(e) => handleScheduleSubmit(e, day.id, slot)} className="flex flex-col gap-1.5">
+                              <select
+                                value={schedSubject}
+                                onChange={(e) => setSchedSubject(e.target.value)}
+                                className="w-full rounded-md border border-gray-200 bg-white px-2 py-1 text-xs focus:border-[#1e3a5f] focus:outline-none"
+                              >
+                                <option value="" disabled>Vali aine...</option>
+                                {SUBJECTS.map((s) => (
+                                  <option key={s} value={s}>{s}</option>
+                                ))}
+                              </select>
+                              <div className="flex gap-1">
+                                <button
+                                  type="submit"
+                                  disabled={!schedSubject || isScheduleCreating}
+                                  className="flex-1 bg-[#1e3a5f] text-white text-xs py-1 rounded-md disabled:opacity-50"
+                                >
+                                  Lisa
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setAddingSlot(null); setSchedSubject(""); }}
+                                  className="text-gray-400 hover:text-gray-600 px-1"
+                                >
+                                  <X size={13} />
+                                </button>
+                              </div>
+                            </form>
+                          ) : (
+                            <button
+                              onClick={() => { setAddingSlot({ day: day.id, slot }); setSchedSubject(""); }}
+                              className="text-gray-300 hover:text-[#1e3a5f] transition-colors"
+                            >
+                              <Plus size={13} />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
