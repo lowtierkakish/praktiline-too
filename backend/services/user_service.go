@@ -67,18 +67,14 @@ func ValidateSession(ctx context.Context, remoteAddr, sessionID string) (bool, i
 
 	// First, let's check Cache for user session (it's faster than looking up in DB)
 	if val, err := db.Cache.Get(ctx, SessionCacheKey(sessionID)).Result(); err == nil {
-		if parts := strings.Split(val, "|"); len(parts) == 2 {
-			if parts[1] != ip {
-				return false, 0, errors.New("user ip mismatch, unauthorized")
-			}
-
+		if parts := strings.Split(val, "|"); len(parts) >= 1 {
 			id, err := strconv.ParseInt(parts[0], 10, 64)
 			return false, id, err
 		}
 	}
 
 	// Session does not exist in Cache, look up in DB
-	userID, err := db.Q.GetUserIDBySession(ctx, sqlc.GetUserIDBySessionParams{Sid: sessionID, Ip: ip})
+	userID, err := db.Q.GetUserIDBySession(ctx, sessionID)
 	if err != nil {
 		return false, 0, err
 	}

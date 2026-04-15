@@ -249,16 +249,11 @@ func (q *Queries) GetUserEmailByID(ctx context.Context, id int64) (string, error
 }
 
 const getUserIDBySession = `-- name: GetUserIDBySession :one
-select user_id from sessions where sid = $1 and ip = $2
+select user_id from sessions where sid = $1
 `
 
-type GetUserIDBySessionParams struct {
-	Sid string `json:"sid"`
-	Ip  string `json:"ip"`
-}
-
-func (q *Queries) GetUserIDBySession(ctx context.Context, arg GetUserIDBySessionParams) (int64, error) {
-	row := q.db.QueryRow(ctx, getUserIDBySession, arg.Sid, arg.Ip)
+func (q *Queries) GetUserIDBySession(ctx context.Context, sid string) (int64, error) {
+	row := q.db.QueryRow(ctx, getUserIDBySession, sid)
 	var user_id int64
 	err := row.Scan(&user_id)
 	return user_id, err
