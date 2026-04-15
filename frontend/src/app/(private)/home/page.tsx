@@ -4,13 +4,14 @@ import { useState } from "react";
 import { Trash2, Plus, X } from "lucide-react";
 import { useGetHomework, useCreateHomework, useDeleteHomework } from "@/hooks/homework";
 import { useGetSchedule, useCreateSchedule, useDeleteSchedule } from "@/hooks/schedule";
+import { useGetMaterials, useUploadImage, useAddLink, useDeleteMaterial } from "@/hooks/materials";
+import { materialsApi } from "@/api/materialsApi";
 
 const DAYS = [
   { id: 1, name: "Esmaspäev" },
   { id: 2, name: "Teisipäev" },
   { id: 3, name: "Kolmapäev" },
   { id: 4, name: "Neljapäev" },
-  { id: 5, name: "Reede" },
 ];
 
 const SCHEDULE_DAYS = [
@@ -50,7 +51,20 @@ const TYPE_STYLES: Record<HwType, { card: string; text: string; badge: string }>
   "kontrolltöö": { card: "border-amber-300 border-l-4 border-l-amber-400", text: "text-amber-600", badge: "bg-amber-100 text-amber-600" },
 };
 
-const TABS = ["Kodutöö", "Tunniplaan"] as const;
+const RESOURCES = [
+  {
+    name: "Sõnaveeb",
+    url: "https://sonaveeb.ee",
+    description: "Eesti keele sõnaraamat",
+  },
+  {
+    name: "HARNO",
+    url: "https://harno.ee",
+    description: "Eksamite materjalid",
+  },
+];
+
+const TABS = ["Kodutöö", "Tunniplaan", "Materjalid", "Ressursid"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function Page() {
@@ -85,6 +99,40 @@ export default function Page() {
     createSchedule(
       { day, slot, subject: schedSubject },
       { onSuccess: () => { setAddingSlot(null); setSchedSubject(""); } }
+    );
+  }
+
+  // Materials state
+  const [showImageForm, setShowImageForm] = useState(false);
+  const [showLinkForm, setShowLinkForm] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageName, setImageName] = useState("");
+  const [linkName, setLinkName] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+
+  const { data: materialsData, isLoading: isMaterialsLoading } = useGetMaterials();
+  const materials = materialsData ?? [];
+  const { mutate: uploadImage, isPending: isUploading } = useUploadImage();
+  const { mutate: addLink, isPending: isAddingLink } = useAddLink();
+  const { mutate: deleteMaterial } = useDeleteMaterial();
+
+  function handleImageUpload(e: React.FormEvent) {
+    e.preventDefault();
+    if (!imageFile || !imageName.trim()) return;
+    const formData = new FormData();
+    formData.append("file", imageFile);
+    formData.append("name", imageName.trim());
+    uploadImage(formData, {
+      onSuccess: () => { setShowImageForm(false); setImageFile(null); setImageName(""); }
+    });
+  }
+
+  function handleAddLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!linkName.trim() || !linkUrl.trim()) return;
+    addLink(
+      { name: linkName.trim(), url: linkUrl.trim() },
+      { onSuccess: () => { setShowLinkForm(false); setLinkName(""); setLinkUrl(""); } }
     );
   }
 
@@ -343,6 +391,176 @@ export default function Page() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
+      {/* Ressursid */}
+      {activeTab === "Ressursid" && (
+        <div className="max-w-xl mx-auto flex flex-col gap-3">
+          {RESOURCES.map((r) => (
+            <a
+              key={r.url}
+              href={r.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col gap-1 px-5 py-4 border border-gray-200 rounded-xl bg-white hover:border-[#1e3a5f] transition-colors"
+            >
+              <span className="text-sm font-semibold text-[#1e3a5f]">{r.name}</span>
+              <span className="text-xs text-gray-400">{r.description}</span>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* Materjalid */}
+      {activeTab === "Materjalid" && (
+        <div className="max-w-3xl mx-auto">
+          {isMaterialsLoading ? (
+            <p className="text-sm text-gray-400 text-center py-12">Laadimine...</p>
+          ) : (
+            <>
+              {/* Buttons to open forms */}
+              <div className="flex gap-2 mb-6">
+                <button
+                  onClick={() => { setShowImageForm(!showImageForm); setShowLinkForm(false); }}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#1e3a5f] text-white text-sm rounded-md hover:bg-[#162d4a] transition-colors"
+                >
+                  <Plus size={14} /> Lisa pilt
+                </button>
+                <button
+                  onClick={() => { setShowLinkForm(!showLinkForm); setShowImageForm(false); }}
+                  className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-md hover:border-gray-300 transition-colors"
+                >
+                  <Plus size={14} /> Lisa link
+                </button>
+              </div>
+
+              {/* Image upload form */}
+              {showImageForm && (
+                <form onSubmit={handleImageUpload} className="mb-6 p-4 border border-gray-200 rounded-xl bg-gray-50 flex flex-col gap-3">
+                  <input
+                    type="text"
+                    placeholder="Nimi (nt. Füüsika konspekt)"
+                    value={imageName}
+                    onChange={(e) => setImageName(e.target.value)}
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none"
+                  />
+                  <label className="cursor-pointer">
+                    <span className="inline-block px-3 py-2 border border-gray-200 rounded-md bg-white text-sm text-gray-600 hover:border-gray-300 transition-colors">
+                      {imageFile ? imageFile.name : "Vali pilt..."}
+                    </span>
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.gif,.webp"
+                      onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                    />
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={!imageFile || !imageName.trim() || isUploading}
+                      className="px-4 py-2 bg-[#1e3a5f] text-white text-sm rounded-md disabled:opacity-50"
+                    >
+                      {isUploading ? "Laadin..." : "Lae üles"}
+                    </button>
+                    <button type="button" onClick={() => setShowImageForm(false)} className="px-4 py-2 text-gray-400 text-sm">
+                      Tühista
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Add link form */}
+              {showLinkForm && (
+                <form onSubmit={handleAddLink} className="mb-6 p-4 border border-gray-200 rounded-xl bg-gray-50 flex flex-col gap-3">
+                  <input
+                    type="text"
+                    placeholder="Nimi (nt. Bioloogia slaidid)"
+                    value={linkName}
+                    onChange={(e) => setLinkName(e.target.value)}
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none"
+                  />
+                  <input
+                    type="url"
+                    placeholder="Link (https://...)"
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={!linkName.trim() || !linkUrl.trim() || isAddingLink}
+                      className="px-4 py-2 bg-[#1e3a5f] text-white text-sm rounded-md disabled:opacity-50"
+                    >
+                      {isAddingLink ? "Lisan..." : "Lisa"}
+                    </button>
+                    <button type="button" onClick={() => setShowLinkForm(false)} className="px-4 py-2 text-gray-400 text-sm">
+                      Tühista
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Images grid */}
+              {materials.filter((m) => m.type === "image").length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Pildid</h3>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {materials.filter((m) => m.type === "image").map((m) => (
+                      <div key={m.id} className="relative group rounded-xl overflow-hidden border border-gray-200">
+                        <img
+                          src={materialsApi.imageUrl(m.url)}
+                          alt={m.name}
+                          className="w-full h-40 object-cover"
+                        />
+                        <div className="p-2 bg-white">
+                          <p className="text-xs font-medium text-gray-700 truncate">{m.name}</p>
+                        </div>
+                        <button
+                          onClick={() => deleteMaterial(m.id)}
+                          className="absolute top-2 right-2 bg-white rounded-full p-1 text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Links list */}
+              {materials.filter((m) => m.type === "link").length > 0 && (
+                <div>
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Lingid</h3>
+                  <div className="flex flex-col gap-2">
+                    {materials.filter((m) => m.type === "link").map((m) => (
+                      <div key={m.id} className="flex items-center justify-between gap-3 px-4 py-3 border border-gray-200 rounded-xl bg-white hover:border-gray-300 transition-colors">
+                        <a
+                          href={m.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-[#1e3a5f] hover:underline truncate"
+                        >
+                          {m.name}
+                        </a>
+                        <button
+                          onClick={() => deleteMaterial(m.id)}
+                          className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {materials.length === 0 && (
+                <p className="text-sm text-gray-300 text-center py-12">Materjale pole veel lisatud.</p>
+              )}
+            </>
           )}
         </div>
       )}

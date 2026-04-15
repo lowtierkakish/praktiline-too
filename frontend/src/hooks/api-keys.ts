@@ -21,3 +21,8 @@ export const scheduleKeys = {
     all: ["schedule"] as const,
     list: () => [...scheduleKeys.all, "list"] as const,
 };
+
+export const materialsKeys = {
+    all: ["materials"] as const,
+    list: () => [...materialsKeys.all, "list"] as const,
+};

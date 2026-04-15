@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/lowtierkakish/praktiline-too/config"
 	"github.com/lowtierkakish/praktiline-too/controllers"
 	"github.com/lowtierkakish/praktiline-too/middleware"
 )
@@ -25,6 +26,10 @@ func SetupRoutes() *chi.Mux {
 	router.Use(middleware.Auth)
 	router.Use(chimiddleware.Recoverer)
 	router.Use(chimiddleware.Heartbeat("/healthz"))
+
+	// Serve uploaded images
+	fileServer := http.FileServer(http.Dir(config.Config.DataDir))
+	router.Handle("/uploads/*", http.StripPrefix("/uploads", fileServer))
 
 	router.Route("/api", func(r chi.Router) {
 
@@ -53,6 +58,13 @@ func SetupRoutes() *chi.Mux {
 				r.Get("/", controllers.GetSchedule)
 				r.Post("/", controllers.CreateScheduleEntry)
 				r.Delete("/{id}", controllers.DeleteScheduleEntry)
+			})
+
+			r.Route("/materials", func(r chi.Router) {
+				r.Get("/", controllers.GetMaterials)
+				r.Post("/upload", controllers.UploadImage)
+				r.Post("/link", controllers.AddLink)
+				r.Delete("/{id}", controllers.DeleteMaterial)
 			})
 		})
 	})
