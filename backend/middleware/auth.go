@@ -70,7 +70,7 @@ func SetSessionID(w http.ResponseWriter, sessionID string) {
 		Value:    sessionID,
 		Expires:  time.Now().Add(config.Config.Session.Duration),
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 		Path:     "/",
 	})
