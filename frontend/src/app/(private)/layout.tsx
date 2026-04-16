@@ -15,7 +15,7 @@ export default function RootLayout({
       <main className="pt-16">
         {children}
       </main>
-      <div className="fixed bottom-3 right-4 text-xs text-gray-400 select-none">
+      <div className="fixed bottom-3 right-4 text-sm text-gray-400 select-none">
         Vilnevtsits Martin 11e
       </div>
     </div>
